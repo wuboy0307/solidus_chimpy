@@ -64,4 +64,13 @@ namespace :spree_chimpy do
       end
     end
   end
+
+  desc 'sync users that have order in our shop with mailchimp'
+  task sync_to: :environment do
+    emails = Spree::Order.pluck(:email).uniq
+    puts "sync users that have order in our shop with mailchimp"
+    emails.each do |email|
+      Spree::Chimpy.list.subscribe(email)
+    end
+  end
 end
