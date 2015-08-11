@@ -78,4 +78,17 @@ namespace :spree_chimpy do
       Spree::Chimpy.list.subscribe(email)
     end
   end
+  
+  desc 'subscribe all users with mailchimp'
+  task subscribe: :environment do
+    emails = Spree.user_class.pluck(:email)
+    puts "subscribe all users"
+    emails.each do |email|
+      begin
+        response = Spree::Chimpy.list.subscribe(email)
+      rescue Exception => e
+        puts("error=#{e.inspect}")
+      end  
+    end
+  end  
 end
