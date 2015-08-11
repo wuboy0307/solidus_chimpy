@@ -1,36 +1,39 @@
 require 'spec_helper'
 
 describe Spree::Order do
+  let(:key) { 'e025fd58df5b66ebd5a709d3fcf6e600-us8' }
+  let(:order) { create(:completed_order_with_totals) }
 
-  it "has a source" do
-    order = described_class.new
+  it 'has a source' do
+    order = Spree::Order.new
     expect(order).to respond_to(:source)
   end
 
-  context "notifying mail chimp" do
+  context 'notifying mail chimp' do
     before do
       Spree::Chimpy::Config.key = nil
 
-      @completed_order     = create(:completed_order_with_totals)
       @not_completed_order = create(:order)
 
-      Spree::Chimpy::Config.key = '1234'
+      Spree::Chimpy::Config.key = key
     end
 
-    it "doesnt update when order is not completed" do
-      Spree::Chimpy.should_not_receive(:enqueue)
+    subject { Spree::Chimpy }
+
+    it 'doesnt update when order is not completed' do
+      expect(subject).to_not receive(:enqueue)
       @not_completed_order.update!
     end
 
-    it "updates when order is completed" do
-      Spree::Chimpy.should_receive(:enqueue).with(:order, @completed_order)
-      @completed_order.update!
+    it 'updates when order is completed' do
+      new_order = create(:completed_order_with_pending_payment, state: 'confirm')
+      expect(subject).to receive(:enqueue).with(:order, new_order)
+      new_order.next
     end
 
-    it "sync when order is completed" do
-      pending ':enqueue return order only once not twice'
-      Spree::Chimpy.should_receive(:enqueue).with(:order, @completed_order).twice
-      @completed_order.cancel!
+    it 'sync when order is completed' do
+      expect(subject).to receive(:enqueue).with(:order, order)
+      order.cancel!
     end
   end
 end
