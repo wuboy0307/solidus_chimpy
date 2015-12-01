@@ -17,7 +17,8 @@ Gem::Specification.new do |s|
   s.require_path = 'lib'
   s.requirements << 'none'
 
-  s.add_dependency 'spree_core'
+  # for solidus
+  # s.add_dependency 'spree_core'
   s.add_dependency 'mailchimp-api', '~> 2.0.5'
 
   s.add_development_dependency 'rspec-rails', '~> 2.14'
